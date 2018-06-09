@@ -1,8 +1,11 @@
 package com.sriyank.javatokotlindemo.activities
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
+import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
@@ -18,6 +21,7 @@ import com.sriyank.javatokotlindemo.retrofit.GithubAPIService
 import com.sriyank.javatokotlindemo.retrofit.RetrofitClient
 import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_display.*
+import kotlinx.android.synthetic.main.header.view.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -37,6 +41,8 @@ class DisplayActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
 
         setSupportActionBar(toolbar)
         supportActionBar!!.title = "Showing Browsed Results"
+
+        setupAppUserName()
 
         val layoutManager = LinearLayoutManager(this)
         layoutManager.orientation = LinearLayoutManager.VERTICAL
@@ -62,30 +68,31 @@ class DisplayActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
         }
     }
 
+    private fun setupAppUserName() {
+        val sp: SharedPreferences = getSharedPreferences(Constants.APP_SHARED_PREFERENCES, Context.MODE_PRIVATE)
+        val userName: String = sp.getString(Constants.KEY_PERSON_NAME, "User")
+        navigationView.getHeaderView(0).txvName.text = userName
+    }
+
     private fun fetchUserRepositories(githubUser: String) {
 
-        mService!!.searchRepositoriesByUser(githubUser).enqueue(object : Callback<List<Repository>> {
-            override fun onResponse(call: Call<List<Repository>>, response: Response<List<Repository>>) {
-                if (response.isSuccessful) {
-                    Log.i(TAG, "posts loaded from API " + response)
+        mService.searchRepositoriesByUser(githubUser).enqueue( object: Callback<List<Repository>>{
+            override fun onFailure(call: Call<List<Repository>>?, t: Throwable?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
 
-                    browsedRepositories = response.body()
-
-                    if (browsedRepositories != null && browsedRepositories!!.size > 0)
-                        setupRecyclerView(browsedRepositories)
-                    else
-                        Util.showMessage(this@DisplayActivity, "No Items Found")
-
-                } else {
-                    Log.i(TAG, "Error " + response)
+            override fun onResponse(call: Call<List<Repository>>?, response: Response<List<Repository>>?) {
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                if(response.isSuccessful){
+                    Log.i(TAG, "Posts loaded from API $response")
+                    
+                }else{
+                    Log.e(TAG, "Error $response")
                     Util.showErrorMessage(this@DisplayActivity, response.errorBody())
                 }
             }
+        } )
 
-            override fun onFailure(call: Call<List<Repository>>, t: Throwable) {
-                Util.showMessage(this@DisplayActivity, t.message)
-            }
-        })
     }
 
     private fun fetchRepositories(queryRepo: String, repoLanguage: String?) {

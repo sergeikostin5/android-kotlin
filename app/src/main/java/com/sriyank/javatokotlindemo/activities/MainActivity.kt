@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
     fun saveName(view: View) {
 
         if (isNotEmpty(etName, inputLayoutName)) {
-            val personName = etName!!.text.toString()
+            val personName = etName.text.toString()
 
             val sp = getSharedPreferences(Constants.APP_SHARED_PREFERENCES, Context.MODE_PRIVATE)
             val editor = sp.edit()
